@@ -59,7 +59,7 @@ export default function QRScannerScreen() {
 
             // Codificar el JSON para pasarlo como parámetro
             const encodedData = encodeURIComponent(JSON.stringify(obraData));
-            router.push(`/obra-detalle?data=${encodedData}`);
+            router.push(`/obraDetalle?data=${encodedData}`);
         } catch (error) {
             console.error('Error parsing QR:', error);
             Alert.alert('Error', 'Código QR inválido o incompleto', [

@@ -134,7 +134,7 @@ export default function HomeScreen() {
 
           <TouchableOpacity
             style={[styles.featureCard, isDark && styles.featureCardDark]}
-            onPress={() => router.push('/qr-scanner')}
+            onPress={() => router.push('/qrScanner')}
           >
             <Text style={styles.featureIcon}>📱</Text>
             <Text style={[styles.featureTitle, isDark && styles.featureTitleDark]}>Escanear QR</Text>

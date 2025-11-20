@@ -101,7 +101,6 @@ export function useLocationService(): void {
         return;
       }
 
-      // Enviar notificación de bienvenida
       await Notifications.scheduleNotificationAsync({
         content: {
           title: "¡Bienvenido al Museo Digital!",
@@ -109,10 +108,9 @@ export function useLocationService(): void {
           data: { type: "museum_entry" },
           sound: true,
         },
-        trigger: null, // Inmediatamente
+        trigger: null,
       });
 
-      // Marcar que ya se mostró la notificación
       await AsyncStorage.setItem(STORAGE_KEY, "true");
 
       console.log("Notificación de bienvenida enviada");
@@ -123,7 +121,6 @@ export function useLocationService(): void {
 
   const inicializarServicio = async () => {
     try {
-      // Solicitar permisos de ubicación
       const { status: estadoUbicacion } =
         await Location.requestForegroundPermissionsAsync();
 
@@ -132,7 +129,6 @@ export function useLocationService(): void {
         return;
       }
 
-      // Solicitar permisos de notificaciones
       const { status: estadoNotificaciones } =
         await Notifications.requestPermissionsAsync();
 
@@ -153,7 +149,6 @@ export function useLocationService(): void {
     inicializarServicio();
 
     return () => {
-      // Limpiar intervalo al desmontar
       const intervalo = intervaloRef.current;
       if (intervalo) {
         clearInterval(intervalo);
