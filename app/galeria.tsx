@@ -2,6 +2,7 @@ import { HamburgerMenu } from '@/components/menu/HamburgerMenu';
 import { ThemeToggle } from '@/components/menu/ThemeToggle';
 import { config } from '@/config/env';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
     ActivityIndicator,
@@ -10,6 +11,7 @@ import {
     ScrollView,
     StyleSheet,
     Text,
+    TouchableOpacity,
     View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -35,6 +37,7 @@ interface Imagen {
 
 export default function GalleryScreen() {
     const { effectiveTheme } = useTheme();
+    const router = useRouter();
     const isDark = effectiveTheme === 'dark';
     const [images, setImages] = useState<Imagen[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -97,7 +100,15 @@ export default function GalleryScreen() {
                     <Text style={[styles.subtitle, isDark && styles.subtitleDark]}>Explora nuestra colección digital</Text>
                     <View style={styles.gallery}>
                         {images.map((item) => (
-                            <View key={item.id} style={[styles.imageCard, isDark && styles.imageCardDark]}>
+                            <TouchableOpacity
+                                key={item.id}
+                                style={[styles.imageCard, isDark && styles.imageCardDark]}
+                                onPress={() => {
+                                    const encodedData = encodeURIComponent(JSON.stringify(item));
+                                    router.push(`/imagenDetalle?data=${encodedData}`);
+                                }}
+                                activeOpacity={0.7}
+                            >
                                 <Image
                                     source={{ uri: item.url }}
                                     style={styles.image}
@@ -114,7 +125,7 @@ export default function GalleryScreen() {
                                         {item.categoria}
                                     </Text>
                                 </View>
-                            </View>
+                            </TouchableOpacity>
                         ))}
                     </View>
                 </ScrollView>
