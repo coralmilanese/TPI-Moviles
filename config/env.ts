@@ -4,4 +4,7 @@ export const config = {
   MUSEO_LAT: parseFloat(process.env.EXPO_PUBLIC_MUSEO_LAT || "-31.4201"),
   MUSEO_LON: parseFloat(process.env.EXPO_PUBLIC_MUSEO_LON || "-64.1888"),
   MUSEO_RADIUS: parseInt(process.env.EXPO_PUBLIC_MUSEO_RADIUS || "100", 10),
+  BIOMETRIC_CREDENTIALS_KEY:
+    process.env.EXPO_PUBLIC_BIOMETRIC_CREDENTIALS_KEY ||
+    "biometric_credentials",
 };

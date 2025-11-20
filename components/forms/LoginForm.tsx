@@ -1,3 +1,4 @@
+import { config } from '@/config/env';
 import { MaterialIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as LocalAuthentication from 'expo-local-authentication';
@@ -8,8 +9,6 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { Button } from '../common/Button';
 import { InputField } from './InputField';
-
-const BIOMETRIC_CREDENTIALS_KEY = 'biometric_credentials';
 
 export const LoginForm: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -40,7 +39,7 @@ export const LoginForm: React.FC = () => {
 
   const checkSavedCredentials = async () => {
     try {
-      const savedCredentials = await AsyncStorage.getItem(BIOMETRIC_CREDENTIALS_KEY);
+      const savedCredentials = await AsyncStorage.getItem(config.BIOMETRIC_CREDENTIALS_KEY);
       setHasSavedCredentials(!!savedCredentials);
     } catch (error) {
       console.error('Error checking saved credentials:', error);
@@ -50,7 +49,7 @@ export const LoginForm: React.FC = () => {
   const saveCredentialsForBiometric = async (email: string, password: string) => {
     try {
       await AsyncStorage.setItem(
-        BIOMETRIC_CREDENTIALS_KEY,
+        config.BIOMETRIC_CREDENTIALS_KEY,
         JSON.stringify({ email, password })
       );
     } catch (error) {
@@ -67,7 +66,7 @@ export const LoginForm: React.FC = () => {
       });
 
       if (result.success) {
-        const savedCredentials = await AsyncStorage.getItem(BIOMETRIC_CREDENTIALS_KEY);
+        const savedCredentials = await AsyncStorage.getItem(config.BIOMETRIC_CREDENTIALS_KEY);
         if (savedCredentials) {
           const { email, password } = JSON.parse(savedCredentials);
           setIsLoading(true);
@@ -200,7 +199,6 @@ export const LoginForm: React.FC = () => {
           setEmail(text);
           if (errors.email) setErrors({ ...errors, email: undefined });
         }}
-        placeholder="tu@email.com"
         keyboardType="email-address"
         autoCapitalize="none"
         error={errors.email}
@@ -212,7 +210,6 @@ export const LoginForm: React.FC = () => {
           setPassword(text);
           if (errors.password) setErrors({ ...errors, password: undefined });
         }}
-        placeholder="••••••••"
         secureTextEntry
         autoCapitalize="none"
         error={errors.password}
