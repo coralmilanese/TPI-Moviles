@@ -3,6 +3,7 @@ import { ThemeToggle } from '@/components/menu/ThemeToggle';
 import { config } from '@/config/env';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
@@ -125,7 +126,9 @@ export default function HomeScreen() {
             style={[styles.featureCard, isDark && styles.featureCardDark]}
             onPress={() => router.push('/galeria')}
           >
-            <Text style={styles.featureIcon}>🖼️</Text>
+            <View style={[styles.iconContainer, isDark && styles.iconContainerDark]}>
+              <Ionicons name="images-outline" size={32} color={isDark ? '#e5e5e5' : '#1a1a1a'} />
+            </View>
             <Text style={[styles.featureTitle, isDark && styles.featureTitleDark]}>Explorar Galería</Text>
             <Text style={[styles.featureDescription, isDark && styles.featureDescriptionDark]}>
               Descubre nuestra colección de obras de arte
@@ -136,7 +139,9 @@ export default function HomeScreen() {
             style={[styles.featureCard, isDark && styles.featureCardDark]}
             onPress={() => router.push('/qrScanner')}
           >
-            <Text style={styles.featureIcon}>📱</Text>
+            <View style={[styles.iconContainer, isDark && styles.iconContainerDark]}>
+              <MaterialIcons name="qr-code-scanner" size={32} color={isDark ? '#e5e5e5' : '#1a1a1a'} />
+            </View>
             <Text style={[styles.featureTitle, isDark && styles.featureTitleDark]}>Escanear QR</Text>
             <Text style={[styles.featureDescription, isDark && styles.featureDescriptionDark]}>
               Descubre detalles de una obra escaneando su código QR
@@ -149,7 +154,9 @@ export default function HomeScreen() {
                 style={[styles.featureCard, isDark && styles.featureCardDark]}
                 onPress={() => router.push('/subir')}
               >
-                <Text style={styles.featureIcon}>📤</Text>
+                <View style={[styles.iconContainer, isDark && styles.iconContainerDark]}>
+                  <Ionicons name="cloud-upload-outline" size={32} color={isDark ? '#e5e5e5' : '#1a1a1a'} />
+                </View>
                 <Text style={[styles.featureTitle, isDark && styles.featureTitleDark]}>Subir Obra</Text>
                 <Text style={[styles.featureDescription, isDark && styles.featureDescriptionDark]}>
                   Comparte tu arte con la comunidad
@@ -170,7 +177,9 @@ export default function HomeScreen() {
               style={[styles.featureCard, styles.loginCard, isDark && styles.featureCardDark, isDark && styles.loginCardDark]}
               onPress={() => router.push('/login')}
             >
-              <Text style={styles.featureIcon}>🔐</Text>
+              <View style={[styles.iconContainer, isDark && styles.iconContainerDark]}>
+                <MaterialIcons name="login" size={32} color={isDark ? '#e5e5e5' : '#1a1a1a'} />
+              </View>
               <Text style={[styles.featureTitle, isDark && styles.featureTitleDark]}>Iniciar Sesión</Text>
               <Text style={[styles.featureDescription, isDark && styles.featureDescriptionDark]}>
                 Accede a funciones exclusivas
@@ -340,6 +349,12 @@ const styles = StyleSheet.create({
   },
   loginCardDark: {
     borderColor: '#e5e5e5',
+  },
+  iconContainer: {
+    marginBottom: 16,
+  },
+  iconContainerDark: {
+    opacity: 0.9,
   },
   featureIcon: {
     fontSize: 40,

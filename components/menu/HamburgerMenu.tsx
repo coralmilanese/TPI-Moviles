@@ -1,5 +1,6 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
@@ -91,7 +92,7 @@ export const HamburgerMenu: React.FC = () => {
               >
                 <View style={styles.menuItemContent}>
                   <View style={[styles.iconCircle, { backgroundColor: '#4A90E2' }]}>
-                    <Text style={styles.iconText}>◉</Text>
+                    <Ionicons name="home-outline" size={18} color="#ffffff" />
                   </View>
                   <Text style={[styles.menuItemText, isDark && styles.menuItemTextDark]}>Inicio</Text>
                 </View>
@@ -103,7 +104,7 @@ export const HamburgerMenu: React.FC = () => {
               >
                 <View style={styles.menuItemContent}>
                   <View style={[styles.iconCircle, { backgroundColor: '#9B59B6' }]}>
-                    <Text style={styles.iconText}>▢</Text>
+                    <Ionicons name="images-outline" size={18} color="#ffffff" />
                   </View>
                   <Text style={[styles.menuItemText, isDark && styles.menuItemTextDark]}>Explorar Galería</Text>
                 </View>
@@ -115,7 +116,7 @@ export const HamburgerMenu: React.FC = () => {
               >
                 <View style={styles.menuItemContent}>
                   <View style={[styles.iconCircle, { backgroundColor: '#3498DB' }]}>
-                    <Text style={styles.iconText}>▣</Text>
+                    <MaterialIcons name="qr-code-scanner" size={18} color="#ffffff" />
                   </View>
                   <Text style={[styles.menuItemText, isDark && styles.menuItemTextDark]}>Escanear QR</Text>
                 </View>
@@ -129,7 +130,7 @@ export const HamburgerMenu: React.FC = () => {
                   >
                     <View style={styles.menuItemContent}>
                       <View style={[styles.iconCircle, { backgroundColor: '#27AE60' }]}>
-                        <Text style={styles.iconText}>↑</Text>
+                        <Ionicons name="cloud-upload-outline" size={18} color="#ffffff" />
                       </View>
                       <Text style={[styles.menuItemText, isDark && styles.menuItemTextDark]}>Subir Imagen</Text>
                     </View>
@@ -140,7 +141,7 @@ export const HamburgerMenu: React.FC = () => {
                   >
                     <View style={styles.menuItemContent}>
                       <View style={[styles.iconCircle, { backgroundColor: '#E67E22' }]}>
-                        <Text style={styles.iconText}>◯</Text>
+                        <Ionicons name="person-outline" size={18} color="#ffffff" />
                       </View>
                       <Text style={[styles.menuItemText, isDark && styles.menuItemTextDark]}>Mi Perfil</Text>
                     </View>
@@ -153,7 +154,7 @@ export const HamburgerMenu: React.FC = () => {
                 >
                   <View style={styles.menuItemContent}>
                     <View style={[styles.iconCircle, { backgroundColor: '#E74C3C' }]}>
-                      <Text style={styles.iconText}>→</Text>
+                      <MaterialIcons name="login" size={18} color="#ffffff" />
                     </View>
                     <Text style={[styles.menuItemText, isDark && styles.menuItemTextDark]}>Ingresar</Text>
                   </View>
@@ -162,7 +163,8 @@ export const HamburgerMenu: React.FC = () => {
             </View>
 
             <TouchableOpacity style={[styles.closeButton, isDark && styles.closeButtonDark]} onPress={closeMenu}>
-              <Text style={[styles.closeButtonText, isDark && styles.closeButtonTextDark]}>✕ Cerrar</Text>
+              <Ionicons name="close" size={16} color={isDark ? '#666' : '#999'} style={{ marginRight: 8 }} />
+              <Text style={[styles.closeButtonText, isDark && styles.closeButtonTextDark]}>Cerrar</Text>
             </TouchableOpacity>
           </Animated.View>
         </Pressable>
@@ -277,6 +279,8 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#f0f0f0',
     alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
   },
   closeButtonDark: {
     borderTopColor: '#2a2a2a',
