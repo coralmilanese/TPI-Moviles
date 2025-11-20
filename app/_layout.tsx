@@ -18,6 +18,8 @@ function RootLayoutNav() {
         <Stack.Screen name="galeria" options={{ headerShown: false }} />
         <Stack.Screen name="subir" options={{ headerShown: false }} />
         <Stack.Screen name="perfil" options={{ headerShown: false }} />
+        <Stack.Screen name="qr-scanner" options={{ headerShown: false }} />
+        <Stack.Screen name="obra-detalle" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
       </Stack>
       <StatusBar style="auto" />

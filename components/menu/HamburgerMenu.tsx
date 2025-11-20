@@ -109,6 +109,18 @@ export const HamburgerMenu: React.FC = () => {
                 </View>
               </TouchableOpacity>
 
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={() => handleNavigation('/qr-scanner')}
+              >
+                <View style={styles.menuItemContent}>
+                  <View style={[styles.iconCircle, { backgroundColor: '#3498DB' }]}>
+                    <Text style={styles.iconText}>▣</Text>
+                  </View>
+                  <Text style={[styles.menuItemText, isDark && styles.menuItemTextDark]}>Escanear QR</Text>
+                </View>
+              </TouchableOpacity>
+
               {isAuthenticated ? (
                 <>
                   <TouchableOpacity
