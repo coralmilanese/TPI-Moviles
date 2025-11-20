@@ -5,6 +5,7 @@ import { ThemeToggle } from '@/components/menu/ThemeToggle';
 import { config } from '@/config/env';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import type { Categoria } from '@/types';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -19,11 +20,6 @@ import {
     View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-interface Categoria {
-    id: number;
-    nombre: string;
-}
 
 export default function UploadScreen() {
     const { isAuthenticated } = useAuth();

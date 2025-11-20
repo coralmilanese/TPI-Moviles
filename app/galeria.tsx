@@ -2,6 +2,7 @@ import { HamburgerMenu } from '@/components/menu/HamburgerMenu';
 import { ThemeToggle } from '@/components/menu/ThemeToggle';
 import { config } from '@/config/env';
 import { useTheme } from '@/contexts/ThemeContext';
+import type { Imagen } from '@/types';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
@@ -18,22 +19,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 const imageWidth = (width - 48) / 2;
-
-interface Imagen {
-    id: number;
-    titulo: string;
-    categoria_id: number;
-    autor: string;
-    fecha_publicacion: string | null;
-    descripcion: string;
-    palabras_clave: string;
-    filename: string;
-    tipo: string;
-    tama_bytes: number;
-    creado_en: string;
-    categoria: string;
-    url: string;
-}
 
 export default function GalleryScreen() {
     const { effectiveTheme } = useTheme();

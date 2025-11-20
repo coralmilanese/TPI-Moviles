@@ -10,7 +10,7 @@ import { useLocationService } from '@/hooks/useLocationService';
 
 function RootLayoutNav() {
   const { effectiveTheme } = useTheme();
-  // Inicia el servicio de ubicación automáticamente en segundo plano
+
   useLocationService();
 
   return (
@@ -24,7 +24,6 @@ function RootLayoutNav() {
         <Stack.Screen name="qrScanner" options={{ headerShown: false }} />
         <Stack.Screen name="obraDetalle" options={{ headerShown: false }} />
         <Stack.Screen name="imagenDetalle" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
       </Stack>
       <StatusBar style="auto" />
     </NavigationThemeProvider>

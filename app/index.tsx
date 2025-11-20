@@ -3,6 +3,7 @@ import { ThemeToggle } from '@/components/menu/ThemeToggle';
 import { config } from '@/config/env';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import type { Imagen } from '@/types';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
@@ -11,13 +12,6 @@ import { Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View } from
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
-
-interface Imagen {
-  id: number;
-  titulo: string;
-  url: string;
-  autor: string;
-}
 
 export default function HomeScreen() {
   const router = useRouter();

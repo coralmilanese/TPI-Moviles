@@ -3,6 +3,7 @@ import { ThemeToggle } from '@/components/menu/ThemeToggle';
 import { config } from '@/config/env';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import type { Comentario, Imagen } from '@/types';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
@@ -19,24 +20,6 @@ import {
     View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-interface Imagen {
-    id: number;
-    titulo: string;
-    categoria: string;
-    autor: string;
-    fecha_publicacion: string | null;
-    descripcion: string;
-    palabras_clave: string;
-    url: string;
-}
-
-interface Comentario {
-    id: number;
-    contenido: string;
-    usuario: string | null;
-    creado_en: string;
-}
 
 export default function ImagenDetalleScreen() {
     const { effectiveTheme } = useTheme();
