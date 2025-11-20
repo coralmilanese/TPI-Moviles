@@ -1,9 +1,9 @@
 import { HamburgerMenu } from '@/components/menu/HamburgerMenu';
 import { ThemeToggle } from '@/components/menu/ThemeToggle';
-import { config } from '@/config/env';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import type { Imagen } from '@/types';
+import { fetchImages } from '@/utils/fetchImages';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
@@ -24,7 +24,11 @@ export default function HomeScreen() {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    fetchImages();
+    fetchImages().then(fetchedImages => {
+      if (fetchedImages) {
+        setImages(fetchedImages);
+      }
+    });
   }, []);
 
   useEffect(() => {
@@ -40,24 +44,6 @@ export default function HomeScreen() {
       };
     }
   }, [images.length]);
-
-  const fetchImages = async () => {
-    try {
-      const response = await fetch(`${config.API_BASE_URL}/api/imagenes`);
-      const data = await response.json();
-
-      if (data && Array.isArray(data)) {
-        // Reemplazar localhost con la IP en las URLs
-        const imagesWithFixedUrls = data.map((img: Imagen) => ({
-          ...img,
-          url: img.url.replace('localhost', '192.168.1.230'),
-        }));
-        setImages(imagesWithFixedUrls);
-      }
-    } catch (error) {
-      console.error('Error fetching images:', error);
-    }
-  };
 
   return (
     <SafeAreaView style={[styles.container, isDark && styles.containerDark]}>

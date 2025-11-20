@@ -1,4 +1,5 @@
 import { useTheme } from '@/contexts/ThemeContext';
+import { Ionicons } from '@expo/vector-icons';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
@@ -20,19 +21,10 @@ export default function QRScannerScreen() {
     const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
-        // Timeout de 1 minuto
+        // Timeout de 1 minuto y se cierra
         timeoutRef.current = setTimeout(() => {
-            Alert.alert(
-                'Tiempo agotado',
-                'No se pudo leer el código QR. Intenta nuevamente.',
-                [
-                    {
-                        text: 'OK',
-                        onPress: () => router.back(),
-                    },
-                ]
-            );
-        }, 60000); // 60 segundos
+            router.back()
+        }, 60000);
 
         return () => {
             if (timeoutRef.current) {
@@ -41,7 +33,7 @@ export default function QRScannerScreen() {
         };
     }, [router]);
 
-    const handleBarCodeScanned = ({ type, data }: { type: string; data: string }) => {
+    const handleBarCodeScanned = ({ data }: { type: string; data: string }) => {
         if (scanned) return;
 
         setScanned(true);
@@ -59,10 +51,10 @@ export default function QRScannerScreen() {
 
             // Codificar el JSON para pasarlo como parámetro
             const encodedData = encodeURIComponent(JSON.stringify(obraData));
-            router.push(`/obraDetalle?data=${encodedData}`);
+            router.push(`/imagenDetalle?data=${encodedData}`);
         } catch (error) {
             console.error('Error parsing QR:', error);
-            Alert.alert('Error', 'Código QR inválido o incompleto', [
+            Alert.alert('Error', 'Código QR inválido', [
                 {
                     text: 'OK',
                     onPress: () => router.back(),
@@ -118,9 +110,16 @@ export default function QRScannerScreen() {
                     onPress={() => router.back()}
                     style={styles.backButton}
                 >
-                    <Text style={[styles.backButtonText, isDark && styles.backButtonTextDark]}>
-                        ← Volver
-                    </Text>
+                    <View style={styles.backButtonContent}>
+                        <Ionicons
+                            name="arrow-back"
+                            size={20}
+                            color={isDark ? '#e5e5e5' : '#1a1a1a'}
+                        />
+                        <Text style={[styles.backButtonText, isDark && styles.backButtonTextDark]}>
+                            Volver
+                        </Text>
+                    </View>
                 </TouchableOpacity>
                 <Text style={[styles.headerTitle, isDark && styles.headerTitleDark]}>
                     Escanear QR
@@ -150,9 +149,6 @@ export default function QRScannerScreen() {
                 <View style={styles.instructionsContainer}>
                     <Text style={styles.instructions}>
                         Apunta la cámara hacia el código QR de la obra
-                    </Text>
-                    <Text style={styles.subInstructions}>
-                        Tiempo máximo: 1 minuto
                     </Text>
                 </View>
             </View>
@@ -194,6 +190,11 @@ const styles = StyleSheet.create({
     },
     backButton: {
         padding: 8,
+    },
+    backButtonContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
     },
     backButtonText: {
         fontSize: 16,

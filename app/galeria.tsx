@@ -1,10 +1,11 @@
 import { HamburgerMenu } from '@/components/menu/HamburgerMenu';
 import { ThemeToggle } from '@/components/menu/ThemeToggle';
-import { config } from '@/config/env';
 import { useTheme } from '@/contexts/ThemeContext';
 import type { Imagen } from '@/types';
+import { fetchImages } from '@/utils/fetchImages';
+import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
     ActivityIndicator,
     Dimensions,
@@ -12,6 +13,7 @@ import {
     ScrollView,
     StyleSheet,
     Text,
+    TextInput,
     TouchableOpacity,
     View,
 } from 'react-native';
@@ -27,37 +29,42 @@ export default function GalleryScreen() {
     const [images, setImages] = useState<Imagen[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
-        fetchImages();
+        setIsLoading(true);
+        fetchImages().then((data: any) => {
+            setImages(data);
+            setIsLoading(false);
+        }).catch((err) => {
+            console.error('Error fetching images:', err);
+            setError('Error al cargar la galería. Por favor, intenta nuevamente más tarde.');
+            setIsLoading(false);
+        });
     }, []);
 
-    const fetchImages = async () => {
-        try {
-            setIsLoading(true);
-            setError(null);
-            const response = await fetch(`${config.API_BASE_URL}/api/imagenes`);
-
-            if (!response.ok) {
-                throw new Error('Error al cargar las imágenes');
-            }
-
-            const data = await response.json();
-
-            // Reemplazar localhost en las URLs por la IP del servidor
-            const imagesWithFixedUrls = data.map((img: Imagen) => ({
-                ...img,
-                url: img.url.replace('http://localhost:4000', config.API_BASE_URL)
-            }));
-
-            setImages(imagesWithFixedUrls);
-        } catch (err) {
-            console.error('Error fetching images:', err);
-            setError(err instanceof Error ? err.message : 'Error desconocido');
-        } finally {
-            setIsLoading(false);
+    const filteredImages = useMemo(() => {
+        if (!searchQuery.trim()) {
+            return images;
         }
-    };
+
+        const query = searchQuery.toLowerCase().trim();
+
+        return images.filter((image) => {
+            const searchableFields = [
+                image.titulo,
+                image.autor,
+                image.categoria,
+                image.descripcion,
+                image.palabras_clave,
+                image.id?.toString(),
+            ];
+
+            return searchableFields.some((field) =>
+                field?.toLowerCase().includes(query)
+            );
+        });
+    }, [images, searchQuery]);
 
     return (
         <SafeAreaView style={[styles.container, isDark && styles.containerDark]}>
@@ -67,6 +74,36 @@ export default function GalleryScreen() {
                 <ThemeToggle />
             </View>
 
+            <View style={[styles.searchContainer, isDark && styles.searchContainerDark]}>
+                <MaterialIcons
+                    name="search"
+                    size={20}
+                    color={isDark ? '#666' : '#999'}
+                    style={styles.searchIcon}
+                />
+                <TextInput
+                    style={[styles.searchInput, isDark && styles.searchInputDark]}
+                    placeholder="Buscar por título, autor, categoría..."
+                    placeholderTextColor={isDark ? '#666' : '#999'}
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                />
+                {searchQuery.length > 0 && (
+                    <TouchableOpacity
+                        onPress={() => setSearchQuery('')}
+                        style={styles.clearButton}
+                    >
+                        <MaterialIcons
+                            name="close"
+                            size={20}
+                            color={isDark ? '#666' : '#999'}
+                        />
+                    </TouchableOpacity>
+                )}
+            </View>
+
             {isLoading ? (
                 <View style={styles.centerContent}>
                     <ActivityIndicator size="large" color={isDark ? '#e5e5e5' : '#1a1a1a'} />
@@ -74,17 +111,26 @@ export default function GalleryScreen() {
                 </View>
             ) : error ? (
                 <View style={styles.centerContent}>
-                    <Text style={[styles.errorText, isDark && styles.errorTextDark]}>❌ {error}</Text>
+                    <Text style={[styles.errorText, isDark && styles.errorTextDark]}>{error}</Text>
                 </View>
-            ) : images.length === 0 ? (
+            ) : filteredImages.length === 0 ? (
                 <View style={styles.centerContent}>
-                    <Text style={[styles.emptyText, isDark && styles.emptyTextDark]}>No hay imágenes disponibles</Text>
+                    <Text style={[styles.emptyText, isDark && styles.emptyTextDark]}>
+                        {searchQuery ? 'No se encontraron resultados' : 'No hay imágenes disponibles'}
+                    </Text>
                 </View>
             ) : (
                 <ScrollView contentContainerStyle={styles.scrollContent}>
-                    <Text style={[styles.subtitle, isDark && styles.subtitleDark]}>Explora nuestra colección digital</Text>
+                    <View style={styles.subtitleContainer}>
+                        <Text style={[styles.subtitle, isDark && styles.subtitleDark]}>
+                            {searchQuery
+                                ? `${filteredImages.length} resultado${filteredImages.length !== 1 ? 's' : ''}`
+                                : 'Explora nuestra colección digital'
+                            }
+                        </Text>
+                    </View>
                     <View style={styles.gallery}>
-                        {images.map((item) => (
+                        {filteredImages.map((item) => (
                             <TouchableOpacity
                                 key={item.id}
                                 style={[styles.imageCard, isDark && styles.imageCardDark]}
@@ -149,6 +195,43 @@ const styles = StyleSheet.create({
     },
     headerTitleDark: {
         color: '#e5e5e5',
+    },
+    searchContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        paddingVertical: 12,
+        marginHorizontal: 20,
+        marginTop: 16,
+        marginBottom: 8,
+        backgroundColor: '#ffffff',
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: '#e5e5e5',
+    },
+    searchContainerDark: {
+        backgroundColor: '#1a1a1a',
+        borderColor: '#2a2a2a',
+    },
+    searchIcon: {
+        marginRight: 8,
+    },
+    searchInput: {
+        flex: 1,
+        fontSize: 14,
+        fontWeight: '300',
+        color: '#1a1a1a',
+        padding: 0,
+    },
+    searchInputDark: {
+        color: '#e5e5e5',
+    },
+    clearButton: {
+        padding: 4,
+        marginLeft: 8,
+    },
+    subtitleContainer: {
+        marginBottom: 20,
     },
     subtitle: {
         fontSize: 15,

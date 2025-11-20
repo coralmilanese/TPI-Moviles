@@ -6,6 +6,8 @@ import { config } from '@/config/env';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import type { Categoria } from '@/types';
+import { fetchCategorias } from '@/utils/fetchCategorias';
+import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -35,42 +37,19 @@ export default function UploadScreen() {
     const [imageUri, setImageUri] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingCategorias, setIsLoadingCategorias] = useState(true);
+    const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
 
-    // Redirigir si no está autenticado
     useEffect(() => {
-        if (!isAuthenticated) {
-            Alert.alert(
-                'Acceso Denegado',
-                'Debes iniciar sesión para subir imágenes',
-                [
-                    {
-                        text: 'Ir a Login',
-                        onPress: () => router.replace('/login'),
-                    },
-                ]
-            );
-        } else {
-            fetchCategorias();
-        }
+        setIsLoadingCategorias(true);
+        fetchCategorias().then(data => {
+            if (data) {
+                setCategorias(data);
+            }
+            setIsLoadingCategorias(false);
+        });
     }, [isAuthenticated, router]);
 
-    const fetchCategorias = async () => {
-        try {
-            setIsLoadingCategorias(true);
-            const response = await fetch(`${config.API_BASE_URL}/api/categorias`);
-            if (!response.ok) throw new Error('Error al cargar categorías');
-
-            const data = await response.json();
-            setCategorias(data);
-        } catch (error) {
-            console.error('Error:', error);
-            Alert.alert('Error', 'No se pudieron cargar las categorías');
-        } finally {
-            setIsLoadingCategorias(false);
-        }
-    };
-
-    const pickImage = async () => {
+    const elegirImagen = async () => {
         try {
             // Solicitar permisos
             const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -122,14 +101,12 @@ export default function UploadScreen() {
             const match = /\.(\w+)$/.exec(filename);
             const type = match ? `image/${match[1]}` : 'image/jpeg';
 
-            // Agregar la imagen
             formData.append('imagen', {
                 uri: imageUri,
                 name: filename,
                 type: type,
             } as any);
 
-            // Agregar campos
             formData.append('titulo', titulo);
             formData.append('categoria_id', categoriaId);
             if (autor.trim()) formData.append('autor', autor);
@@ -175,7 +152,7 @@ export default function UploadScreen() {
     };
 
     if (!isAuthenticated) {
-        return null; // El useEffect redirigirá
+        return null;
     }
 
     return (
@@ -189,23 +166,25 @@ export default function UploadScreen() {
             <ScrollView contentContainerStyle={styles.scrollContent}>
                 <View style={[styles.headerSection, isDark && styles.headerSectionDark]}>
                     <Text style={[styles.title, isDark && styles.titleDark]}>Subir Obra de Arte</Text>
-                    <Text style={[styles.subtitle, isDark && styles.subtitleDark]}>
-                        Comparte tu arte con la comunidad del museo
-                    </Text>
                 </View>
 
                 <View style={[styles.formContainer, isDark && styles.formContainerDark]}>
                     <TouchableOpacity
                         style={[styles.imagePickerButton, isDark && styles.imagePickerButtonDark]}
-                        onPress={pickImage}
+                        onPress={elegirImagen}
                     >
                         {imageUri ? (
                             <Image source={{ uri: imageUri }} style={styles.previewImage} />
                         ) : (
                             <View style={styles.placeholderContainer}>
-                                <Text style={styles.placeholderIcon}>📷</Text>
+                                <Ionicons
+                                    name="camera-outline"
+                                    size={48}
+                                    color={isDark ? '#666' : '#999'}
+                                    style={styles.placeholderIcon}
+                                />
                                 <Text style={[styles.placeholderText, isDark && styles.placeholderTextDark]}>
-                                    Toca para seleccionar una imagen
+                                    Seleccionar una imagen
                                 </Text>
                             </View>
                         )}
@@ -235,34 +214,58 @@ export default function UploadScreen() {
                     ) : (
                         <View style={styles.fieldContainer}>
                             <Text style={[styles.label, isDark && styles.labelDark]}>Categoría *</Text>
-                            <ScrollView
-                                horizontal
-                                showsHorizontalScrollIndicator={false}
-                                style={styles.categoriesScroll}
+                            <TouchableOpacity
+                                style={[styles.dropdown, isDark && styles.dropdownDark]}
+                                onPress={() => setShowCategoryDropdown(!showCategoryDropdown)}
                             >
-                                {categorias.map((cat) => (
-                                    <TouchableOpacity
-                                        key={cat.id}
-                                        style={[
-                                            styles.categoryChip,
-                                            isDark && styles.categoryChipDark,
-                                            categoriaId === cat.id.toString() && styles.categoryChipSelected,
-                                            categoriaId === cat.id.toString() && isDark && styles.categoryChipSelectedDark,
-                                        ]}
-                                        onPress={() => setCategoriaId(cat.id.toString())}
-                                    >
-                                        <Text
+                                <Text style={[styles.dropdownText, isDark && styles.dropdownTextDark]}>
+                                    {categoriaId
+                                        ? categorias.find(cat => cat.id.toString() === categoriaId)?.nombre
+                                        : 'Selecciona una categoría'
+                                    }
+                                </Text>
+                                <Ionicons
+                                    name={showCategoryDropdown ? "chevron-up" : "chevron-down"}
+                                    size={20}
+                                    color={isDark ? '#999' : '#666'}
+                                />
+                            </TouchableOpacity>
+
+                            {showCategoryDropdown && (
+                                <View style={[styles.dropdownList, isDark && styles.dropdownListDark]}>
+                                    {categorias.map((cat) => (
+                                        <TouchableOpacity
+                                            key={cat.id}
                                             style={[
-                                                styles.categoryChipText,
-                                                isDark && styles.categoryChipTextDark,
-                                                categoriaId === cat.id.toString() && styles.categoryChipTextSelected,
+                                                styles.dropdownItem,
+                                                isDark && styles.dropdownItemDark,
+                                                categoriaId === cat.id.toString() && styles.dropdownItemSelected,
                                             ]}
+                                            onPress={() => {
+                                                setCategoriaId(cat.id.toString());
+                                                setShowCategoryDropdown(false);
+                                            }}
                                         >
-                                            {cat.nombre}
-                                        </Text>
-                                    </TouchableOpacity>
-                                ))}
-                            </ScrollView>
+                                            <Text
+                                                style={[
+                                                    styles.dropdownItemText,
+                                                    isDark && styles.dropdownItemTextDark,
+                                                    categoriaId === cat.id.toString() && styles.dropdownItemTextSelected,
+                                                ]}
+                                            >
+                                                {cat.nombre}
+                                            </Text>
+                                            {categoriaId === cat.id.toString() && (
+                                                <Ionicons
+                                                    name="checkmark"
+                                                    size={20}
+                                                    color={isDark ? '#e5e5e5' : '#1a1a1a'}
+                                                />
+                                            )}
+                                        </TouchableOpacity>
+                                    ))}
+                                </View>
+                            )}
                         </View>
                     )}
 
@@ -392,9 +395,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     placeholderIcon: {
-        fontSize: 40,
         marginBottom: 12,
-        opacity: 0.4,
+        opacity: 0.5,
     },
     placeholderText: {
         fontSize: 14,
@@ -437,6 +439,68 @@ const styles = StyleSheet.create({
     },
     labelDark: {
         color: '#e5e5e5',
+    },
+    dropdown: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 16,
+        paddingVertical: 14,
+        backgroundColor: '#ffffff',
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#e0e0e0',
+    },
+    dropdownDark: {
+        backgroundColor: '#1a1a1a',
+        borderColor: '#2a2a2a',
+    },
+    dropdownText: {
+        fontSize: 14,
+        color: '#1a1a1a',
+        fontWeight: '300',
+        flex: 1,
+    },
+    dropdownTextDark: {
+        color: '#e5e5e5',
+    },
+    dropdownList: {
+        marginTop: 8,
+        backgroundColor: '#ffffff',
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#e0e0e0',
+        maxHeight: 200,
+    },
+    dropdownListDark: {
+        backgroundColor: '#1a1a1a',
+        borderColor: '#2a2a2a',
+    },
+    dropdownItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 16,
+        paddingVertical: 14,
+        borderBottomWidth: 1,
+        borderBottomColor: '#f0f0f0',
+    },
+    dropdownItemDark: {
+        borderBottomColor: '#2a2a2a',
+    },
+    dropdownItemSelected: {
+        backgroundColor: '#fafafa',
+    },
+    dropdownItemText: {
+        fontSize: 14,
+        color: '#1a1a1a',
+        fontWeight: '300',
+    },
+    dropdownItemTextDark: {
+        color: '#e5e5e5',
+    },
+    dropdownItemTextSelected: {
+        fontWeight: '400',
     },
     categoriesScroll: {
         flexDirection: 'row',
