@@ -1,6 +1,8 @@
 import { HamburgerMenu } from '@/components/menu/HamburgerMenu';
 import { ThemeToggle } from '@/components/menu/ThemeToggle';
+import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import { fetchFavoritos, toggleFavorito } from '@/services/favoritosService';
 import type { Imagen } from '@/types';
 import { fetchImages } from '@/utils/fetchImages';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -8,6 +10,7 @@ import { useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
     ActivityIndicator,
+    Alert,
     Dimensions,
     Image,
     ScrollView,
@@ -24,33 +27,109 @@ const imageWidth = (width - 48) / 2;
 
 export default function GalleryScreen() {
     const { effectiveTheme } = useTheme();
+    const { isAuthenticated, token } = useAuth();
     const router = useRouter();
     const isDark = effectiveTheme === 'dark';
     const [images, setImages] = useState<Imagen[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
+    const [favoritosIds, setFavoritosIds] = useState<Set<number>>(new Set());
+    const [togglingFavorite, setTogglingFavorite] = useState<number | null>(null);
 
-    useEffect(() => {
+    const loadData = async () => {
         setIsLoading(true);
-        fetchImages().then((data: any) => {
-            setImages(data);
-            setIsLoading(false);
-        }).catch((err) => {
+        try {
+            // Cargar imágenes
+            const fetchedImages = await fetchImages();
+
+            if (!fetchedImages) {
+                setError('No se pudieron cargar las imágenes');
+                return;
+            }
+
+            // Cargar favoritos si el usuario está autenticado
+            if (isAuthenticated && token) {
+                try {
+                    const favoritos = await fetchFavoritos(token);
+                    const favIds = new Set(favoritos.map(f => f.imagen_id));
+                    setFavoritosIds(favIds);
+
+                    // Marcar imágenes favoritas
+                    const imagesWithFavorites = fetchedImages.map(img => ({
+                        ...img,
+                        isFavorite: favIds.has(img.id),
+                    }));
+                    setImages(imagesWithFavorites);
+                } catch (error) {
+                    console.error('Error loading favoritos:', error);
+                    setImages(fetchedImages);
+                }
+            } else {
+                setImages(fetchedImages);
+            }
+        } catch (err) {
             console.error('Error fetching images:', err);
             setError('Error al cargar la galería. Por favor, intenta nuevamente más tarde.');
+        } finally {
             setIsLoading(false);
-        });
-    }, []);
+        }
+    };
+
+    // Cargar imágenes y favoritos
+    useEffect(() => {
+        loadData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isAuthenticated, token]);
+
+    const handleToggleFavorite = async (imagen_id: number, currentIsFavorite: boolean) => {
+        if (!isAuthenticated || !token) {
+            Alert.alert('Inicia sesión', 'Debes iniciar sesión para agregar favoritos');
+            return;
+        }
+
+        setTogglingFavorite(imagen_id);
+        try {
+            await toggleFavorito(token, imagen_id, currentIsFavorite);
+
+            // Actualizar estado local
+            const newFavoritosIds = new Set(favoritosIds);
+            if (currentIsFavorite) {
+                newFavoritosIds.delete(imagen_id);
+            } else {
+                newFavoritosIds.add(imagen_id);
+            }
+            setFavoritosIds(newFavoritosIds);
+
+            // Actualizar imágenes
+            setImages(prevImages =>
+                prevImages.map(img =>
+                    img.id === imagen_id
+                        ? { ...img, isFavorite: !currentIsFavorite }
+                        : img
+                )
+            );
+        } catch (error) {
+            Alert.alert('Error', 'No se pudo actualizar el favorito');
+            console.error('Error toggling favorito:', error);
+        } finally {
+            setTogglingFavorite(null);
+        }
+    };
 
     const filteredImages = useMemo(() => {
         if (!searchQuery.trim()) {
-            return images;
+            // Ordenar: favoritos primero
+            return [...images].sort((a, b) => {
+                if (a.isFavorite && !b.isFavorite) return -1;
+                if (!a.isFavorite && b.isFavorite) return 1;
+                return 0;
+            });
         }
 
         const query = searchQuery.toLowerCase().trim();
 
-        return images.filter((image) => {
+        const filtered = images.filter((image) => {
             const searchableFields = [
                 image.titulo,
                 image.autor,
@@ -63,6 +142,13 @@ export default function GalleryScreen() {
             return searchableFields.some((field) =>
                 field?.toLowerCase().includes(query)
             );
+        });
+
+        // Ordenar resultados filtrados: favoritos primero
+        return filtered.sort((a, b) => {
+            if (a.isFavorite && !b.isFavorite) return -1;
+            if (!a.isFavorite && b.isFavorite) return 1;
+            return 0;
         });
     }, [images, searchQuery]);
 
@@ -140,11 +226,29 @@ export default function GalleryScreen() {
                                 }}
                                 activeOpacity={0.7}
                             >
-                                <Image
-                                    source={{ uri: item.url }}
-                                    style={styles.image}
-                                    resizeMode="cover"
-                                />
+                                <View style={styles.imageContainer}>
+                                    <Image
+                                        source={{ uri: item.url }}
+                                        style={styles.image}
+                                        resizeMode="cover"
+                                    />
+                                    {isAuthenticated && (
+                                        <TouchableOpacity
+                                            style={[styles.favoriteButton, isDark && styles.favoriteButtonDark]}
+                                            onPress={(e) => {
+                                                e.stopPropagation();
+                                                handleToggleFavorite(item.id, !!item.isFavorite);
+                                            }}
+                                            disabled={togglingFavorite === item.id}
+                                        >
+                                            <MaterialIcons
+                                                name={item.isFavorite ? 'favorite' : 'favorite-border'}
+                                                size={24}
+                                                color={item.isFavorite ? '#ff4444' : (isDark ? '#e5e5e5' : '#1a1a1a')}
+                                            />
+                                        </TouchableOpacity>
+                                    )}
+                                </View>
                                 <View style={styles.imageInfo}>
                                     <Text style={[styles.imageTitle, isDark && styles.imageTitleDark]} numberOfLines={1}>
                                         {item.titulo}
@@ -263,10 +367,34 @@ const styles = StyleSheet.create({
         backgroundColor: '#1a1a1a',
         borderColor: '#2a2a2a',
     },
-    image: {
+    imageContainer: {
+        position: 'relative',
         width: '100%',
         height: imageWidth * 1.2,
+    },
+    image: {
+        width: '100%',
+        height: '100%',
         backgroundColor: '#f0f0f0',
+    },
+    favoriteButton: {
+        position: 'absolute',
+        top: 8,
+        right: 8,
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        borderRadius: 20,
+        width: 40,
+        height: 40,
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+    },
+    favoriteButtonDark: {
+        backgroundColor: 'rgba(26, 26, 26, 0.9)',
     },
     imageInfo: {
         padding: 16,

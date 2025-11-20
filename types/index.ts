@@ -19,6 +19,15 @@ export interface Imagen {
   creado_en: string;
   categoria: string;
   url: string;
+  isFavorite?: boolean; // Indica si está en favoritos del usuario actual
+}
+
+export interface Favorito {
+  id: number;
+  imagen_id: number;
+  creado_en: string;
+  titulo?: string;
+  url?: string;
 }
 
 export interface Comentario {
