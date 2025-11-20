@@ -5,10 +5,13 @@ import 'react-native-reanimated';
 
 import { AuthProvider } from '@/contexts/AuthContext';
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
+import { useLocationService } from '@/hooks/useLocationService';
 
 
 function RootLayoutNav() {
   const { effectiveTheme } = useTheme();
+  // Inicia el servicio de ubicación automáticamente en segundo plano
+  useLocationService();
 
   return (
     <NavigationThemeProvider value={effectiveTheme === 'dark' ? DarkTheme : DefaultTheme}>
