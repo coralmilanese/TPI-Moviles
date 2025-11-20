@@ -1,10 +1,15 @@
 import { Button } from '@/components/common/Button';
 import { InputField } from '@/components/forms/InputField';
+import { HamburgerMenu } from '@/components/menu/HamburgerMenu';
+import { ThemeToggle } from '@/components/menu/ThemeToggle';
+import { config } from '@/config/env';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
+    ActivityIndicator,
     Alert,
     Image,
     ScrollView,
@@ -15,18 +20,28 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+interface Categoria {
+    id: number;
+    nombre: string;
+}
+
 export default function UploadScreen() {
     const { isAuthenticated } = useAuth();
     const { effectiveTheme } = useTheme();
     const isDark = effectiveTheme === 'dark';
     const router = useRouter();
-    const [title, setTitle] = useState('');
-    const [description, setDescription] = useState('');
+    const [titulo, setTitulo] = useState('');
+    const [descripcion, setDescripcion] = useState('');
+    const [autor, setAutor] = useState('');
+    const [palabrasClave, setPalabrasClave] = useState('');
+    const [categoriaId, setCategoriaId] = useState<string>('');
+    const [categorias, setCategorias] = useState<Categoria[]>([]);
     const [imageUri, setImageUri] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [isLoadingCategorias, setIsLoadingCategorias] = useState(true);
 
     // Redirigir si no está autenticado
-    React.useEffect(() => {
+    useEffect(() => {
         if (!isAuthenticated) {
             Alert.alert(
                 'Acceso Denegado',
@@ -38,29 +53,56 @@ export default function UploadScreen() {
                     },
                 ]
             );
+        } else {
+            fetchCategorias();
         }
     }, [isAuthenticated, router]);
 
-    const pickImage = () => {
-        // TODO: Implementar selección de imagen
-        // Por ahora, simulamos con una imagen de ejemplo
-        Alert.alert(
-            'Seleccionar Imagen',
-            'Aquí implementarás expo-image-picker para seleccionar una imagen',
-            [
-                {
-                    text: 'OK',
-                    onPress: () => {
-                        // Imagen de ejemplo
-                        setImageUri('https://picsum.photos/800/600?random=' + Date.now());
-                    },
-                },
-            ]
-        );
+    const fetchCategorias = async () => {
+        try {
+            setIsLoadingCategorias(true);
+            const response = await fetch(`${config.API_BASE_URL}/api/categorias`);
+            if (!response.ok) throw new Error('Error al cargar categorías');
+
+            const data = await response.json();
+            setCategorias(data);
+        } catch (error) {
+            console.error('Error:', error);
+            Alert.alert('Error', 'No se pudieron cargar las categorías');
+        } finally {
+            setIsLoadingCategorias(false);
+        }
+    };
+
+    const pickImage = async () => {
+        try {
+            // Solicitar permisos
+            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+            if (status !== 'granted') {
+                Alert.alert('Permiso denegado', 'Se necesita acceso a la galería para seleccionar imágenes');
+                return;
+            }
+
+            // Abrir selector de imágenes
+            const result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ['images'],
+                allowsEditing: true,
+                aspect: [4, 3],
+                quality: 0.8,
+            });
+
+            if (!result.canceled && result.assets[0]) {
+                setImageUri(result.assets[0].uri);
+            }
+        } catch (error) {
+            console.error('Error al seleccionar imagen:', error);
+            Alert.alert('Error', 'No se pudo seleccionar la imagen');
+        }
     };
 
     const handleUpload = async () => {
-        if (!title.trim()) {
+        if (!titulo.trim()) {
             Alert.alert('Error', 'Por favor ingresa un título');
             return;
         }
@@ -70,13 +112,45 @@ export default function UploadScreen() {
             return;
         }
 
+        if (!categoriaId) {
+            Alert.alert('Error', 'Por favor selecciona una categoría');
+            return;
+        }
+
         setIsLoading(true);
         try {
-            // TODO: Implementar la subida real al backend
-            // const API_URL = 'http://localhost:3000/api/images/upload';
+            const formData = new FormData();
 
-            // Simulación de subida
-            await new Promise((resolve) => setTimeout(resolve, 1500));
+            // Extraer nombre y tipo de archivo
+            const filename = imageUri.split('/').pop() || 'image.jpg';
+            const match = /\.(\w+)$/.exec(filename);
+            const type = match ? `image/${match[1]}` : 'image/jpeg';
+
+            // Agregar la imagen
+            formData.append('imagen', {
+                uri: imageUri,
+                name: filename,
+                type: type,
+            } as any);
+
+            // Agregar campos
+            formData.append('titulo', titulo);
+            formData.append('categoria_id', categoriaId);
+            if (autor.trim()) formData.append('autor', autor);
+            if (descripcion.trim()) formData.append('descripcion', descripcion);
+            if (palabrasClave.trim()) formData.append('palabras_clave', palabrasClave);
+
+            const response = await fetch(`${config.API_BASE_URL}/api/imagenes`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Error al subir la imagen');
+            }
 
             Alert.alert(
                 'Éxito',
@@ -90,10 +164,14 @@ export default function UploadScreen() {
             );
 
             // Limpiar formulario
-            setTitle('');
-            setDescription('');
+            setTitulo('');
+            setDescripcion('');
+            setAutor('');
+            setPalabrasClave('');
+            setCategoriaId('');
             setImageUri(null);
-        } catch {
+        } catch (error) {
+            console.error('Error:', error);
             Alert.alert('Error', 'No se pudo subir la imagen');
         } finally {
             setIsLoading(false);
@@ -106,8 +184,14 @@ export default function UploadScreen() {
 
     return (
         <SafeAreaView style={[styles.container, isDark && styles.containerDark]}>
+            <View style={[styles.header, isDark && styles.headerDark]}>
+                <HamburgerMenu />
+                <Text style={[styles.headerTitle, isDark && styles.headerTitleDark]}>Subir Obra</Text>
+                <ThemeToggle />
+            </View>
+
             <ScrollView contentContainerStyle={styles.scrollContent}>
-                <View style={[styles.header, isDark && styles.headerDark]}>
+                <View style={[styles.headerSection, isDark && styles.headerSectionDark]}>
                     <Text style={[styles.title, isDark && styles.titleDark]}>Subir Obra de Arte</Text>
                     <Text style={[styles.subtitle, isDark && styles.subtitleDark]}>
                         Comparte tu arte con la comunidad del museo
@@ -132,17 +216,72 @@ export default function UploadScreen() {
                     </TouchableOpacity>
 
                     <InputField
-                        label="Título de la obra"
-                        value={title}
-                        onChangeText={setTitle}
+                        label="Título de la obra *"
+                        value={titulo}
+                        onChangeText={setTitulo}
                         placeholder="Ej: Atardecer en el campo"
                     />
 
                     <InputField
-                        label="Descripción (opcional)"
-                        value={description}
-                        onChangeText={setDescription}
+                        label="Autor"
+                        value={autor}
+                        onChangeText={setAutor}
+                        placeholder="Nombre del autor"
+                    />
+
+                    {isLoadingCategorias ? (
+                        <View style={styles.loadingContainer}>
+                            <ActivityIndicator size="small" color={isDark ? '#e5e5e5' : '#1a1a1a'} />
+                            <Text style={[styles.loadingText, isDark && styles.loadingTextDark]}>
+                                Cargando categorías...
+                            </Text>
+                        </View>
+                    ) : (
+                        <View style={styles.fieldContainer}>
+                            <Text style={[styles.label, isDark && styles.labelDark]}>Categoría *</Text>
+                            <ScrollView
+                                horizontal
+                                showsHorizontalScrollIndicator={false}
+                                style={styles.categoriesScroll}
+                            >
+                                {categorias.map((cat) => (
+                                    <TouchableOpacity
+                                        key={cat.id}
+                                        style={[
+                                            styles.categoryChip,
+                                            isDark && styles.categoryChipDark,
+                                            categoriaId === cat.id.toString() && styles.categoryChipSelected,
+                                            categoriaId === cat.id.toString() && isDark && styles.categoryChipSelectedDark,
+                                        ]}
+                                        onPress={() => setCategoriaId(cat.id.toString())}
+                                    >
+                                        <Text
+                                            style={[
+                                                styles.categoryChipText,
+                                                isDark && styles.categoryChipTextDark,
+                                                categoriaId === cat.id.toString() && styles.categoryChipTextSelected,
+                                            ]}
+                                        >
+                                            {cat.nombre}
+                                        </Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </ScrollView>
+                        </View>
+                    )}
+
+                    <InputField
+                        label="Descripción"
+                        value={descripcion}
+                        onChangeText={setDescripcion}
                         placeholder="Describe tu obra..."
+                    />
+
+                    <InputField
+                        label="Palabras clave"
+                        value={palabrasClave}
+                        onChangeText={setPalabrasClave}
+                        placeholder="Ej: naturaleza, paisaje, atardecer"
                     />
 
                     <Button
@@ -172,13 +311,35 @@ const styles = StyleSheet.create({
     containerDark: {
         backgroundColor: '#0a0a0a',
     },
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 20,
+        paddingVertical: 16,
+        backgroundColor: 'transparent',
+        borderBottomWidth: 1,
+        borderBottomColor: '#e0e0e0',
+    },
+    headerDark: {
+        borderBottomColor: '#2a2a2a',
+    },
+    headerTitle: {
+        fontSize: 20,
+        fontWeight: '300',
+        color: '#1a1a1a',
+        letterSpacing: 1,
+    },
+    headerTitleDark: {
+        color: '#e5e5e5',
+    },
     scrollContent: {
         padding: 32,
     },
-    header: {
+    headerSection: {
         marginBottom: 32,
     },
-    headerDark: {
+    headerSectionDark: {
         backgroundColor: 'transparent',
     },
     title: {
@@ -253,5 +414,68 @@ const styles = StyleSheet.create({
     },
     cancelButton: {
         marginTop: 12,
+    },
+    loadingContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 16,
+        gap: 12,
+    },
+    loadingText: {
+        fontSize: 14,
+        color: '#757575',
+        fontWeight: '300',
+    },
+    loadingTextDark: {
+        color: '#999',
+    },
+    fieldContainer: {
+        marginBottom: 20,
+    },
+    label: {
+        fontSize: 14,
+        fontWeight: '400',
+        color: '#1a1a1a',
+        marginBottom: 12,
+        letterSpacing: 0.3,
+    },
+    labelDark: {
+        color: '#e5e5e5',
+    },
+    categoriesScroll: {
+        flexDirection: 'row',
+    },
+    categoryChip: {
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        borderRadius: 20,
+        backgroundColor: '#f0f0f0',
+        marginRight: 8,
+        borderWidth: 1,
+        borderColor: '#e0e0e0',
+    },
+    categoryChipDark: {
+        backgroundColor: '#2a2a2a',
+        borderColor: '#3a3a3a',
+    },
+    categoryChipSelected: {
+        backgroundColor: '#1a1a1a',
+        borderColor: '#1a1a1a',
+    },
+    categoryChipSelectedDark: {
+        backgroundColor: '#e5e5e5',
+        borderColor: '#e5e5e5',
+    },
+    categoryChipText: {
+        fontSize: 14,
+        color: '#1a1a1a',
+        fontWeight: '300',
+    },
+    categoryChipTextDark: {
+        color: '#e5e5e5',
+    },
+    categoryChipTextSelected: {
+        color: '#ffffff',
+        fontWeight: '400',
     },
 });
