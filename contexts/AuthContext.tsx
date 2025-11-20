@@ -8,6 +8,7 @@ interface AuthContextType {
     token: string | null;
     isLoading: boolean;
     login: (email: string, password: string) => Promise<void>;
+    register: (nombre: string, email: string, password: string) => Promise<void>;
     logout: () => Promise<void>;
     isAuthenticated: boolean;
 }
@@ -92,6 +93,54 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
     };
 
+    const register = async (nombre: string, email: string, password: string) => {
+        try {
+            const API_URL = `${config.API_BASE_URL}/api/auth/register`;
+
+            console.log('Intentando registro en:', API_URL);
+
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    nombre,
+                    email,
+                    password,
+                    rol: 'visitante' // Por defecto los usuarios son visitantes
+                }),
+            });
+
+            console.log('Response status:', response.status);
+
+            const responseText = await response.text();
+            console.log('Response text:', responseText);
+
+            let data;
+            try {
+                data = JSON.parse(responseText);
+            } catch (parseError) {
+                console.error('Error parseando JSON:', parseError);
+                throw new Error(`El servidor no devolvió JSON válido. URL: ${API_URL}, Respuesta: ${responseText.substring(0, 100)}`);
+            }
+
+            if (!response.ok) {
+                // Manejar errores específicos
+                if (response.status === 409) {
+                    throw new Error('El email ya está registrado');
+                }
+                throw new Error(data.error || data.mensaje || 'Error al crear la cuenta');
+            }
+
+            // Registro exitoso - no necesitamos hacer login automático
+            console.log('Registro exitoso:', data.mensaje);
+        } catch (error) {
+            console.error('Register error:', error);
+            throw error;
+        }
+    };
+
     const logout = async () => {
         try {
             setUser(null);
@@ -109,6 +158,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         token,
         isLoading,
         login,
+        register,
         logout,
         isAuthenticated: !!token && !!user,
     };

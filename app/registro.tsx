@@ -1,21 +1,15 @@
+import { RegisterForm } from '@/components/forms/RegisterForm';
+import { HamburgerMenu } from '@/components/menu/HamburgerMenu';
+import { ThemeToggle } from '@/components/menu/ThemeToggle';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import {
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-} from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LoginForm } from '../components/forms/LoginForm';
 
-export default function LoginScreen() {
-    const router = useRouter();
+export default function RegistroScreen() {
     const { effectiveTheme } = useTheme();
+    const router = useRouter();
     const isDark = effectiveTheme === 'dark';
 
     return (
@@ -24,31 +18,35 @@ export default function LoginScreen() {
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={styles.keyboardView}
             >
-                <View style={[styles.backButtonContainer, isDark && styles.backButtonContainerDark]}>
-                    <TouchableOpacity
-                        style={styles.backButton}
-                        onPress={() => router.back()}
-                    >
-                        <Text style={[styles.backButtonText, isDark && styles.backButtonTextDark]}>← Volver</Text>
-                    </TouchableOpacity>
+                <View style={[styles.header, isDark && styles.headerDark]}>
+                    <HamburgerMenu />
+                    <Text style={[styles.headerTitle, isDark && styles.headerTitleDark]}>Crear Cuenta</Text>
+                    <ThemeToggle />
                 </View>
+
                 <ScrollView
                     contentContainerStyle={styles.scrollContent}
                     keyboardShouldPersistTaps="handled"
                 >
-                    <View style={styles.header}>
-                        <Text style={[styles.title, isDark && styles.titleDark]}>Bienvenido</Text>
-                        <Text style={[styles.subtitle, isDark && styles.subtitleDark]}>Inicia sesión para continuar</Text>
+                    <View style={styles.titleContainer}>
+                        <Text style={[styles.title, isDark && styles.titleDark]}>
+                            Únete al Museo
+                        </Text>
+                        <Text style={[styles.subtitle, isDark && styles.subtitleDark]}>
+                            Crea tu cuenta para disfrutar de todas las funciones
+                        </Text>
                     </View>
+
                     <View style={[styles.formContainer, isDark && styles.formContainerDark]}>
-                        <LoginForm />
+                        <RegisterForm />
+
                         <TouchableOpacity
-                            onPress={() => router.push('/registro')}
-                            style={styles.registerLink}
+                            onPress={() => router.replace('/login')}
+                            style={styles.loginLink}
                         >
-                            <Text style={[styles.registerLinkText, isDark && styles.registerLinkTextDark]}>
-                                ¿No tienes cuenta?{' '}
-                                <Text style={styles.registerLinkBold}>Regístrate</Text>
+                            <Text style={[styles.loginLinkText, isDark && styles.loginLinkTextDark]}>
+                                ¿Ya tienes cuenta?{' '}
+                                <Text style={styles.loginLinkBold}>Inicia sesión</Text>
                             </Text>
                         </TouchableOpacity>
                     </View>
@@ -66,36 +64,35 @@ const styles = StyleSheet.create({
     containerDark: {
         backgroundColor: '#0a0a0a',
     },
-    backButtonContainer: {
-        paddingHorizontal: 20,
-        paddingVertical: 12,
-        backgroundColor: 'transparent',
-    },
-    backButtonContainerDark: {
-        backgroundColor: 'transparent',
-    },
-    backButton: {
-        paddingVertical: 8,
-        paddingHorizontal: 12,
-        alignSelf: 'flex-start',
-    },
-    backButtonText: {
-        fontSize: 15,
-        color: '#1a1a1a',
-        fontWeight: '300',
-    },
-    backButtonTextDark: {
-        color: '#e5e5e5',
-    },
     keyboardView: {
         flex: 1,
+    },
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 20,
+        paddingVertical: 16,
+        backgroundColor: 'transparent',
+    },
+    headerDark: {
+        backgroundColor: 'transparent',
+    },
+    headerTitle: {
+        fontSize: 20,
+        fontWeight: '300',
+        color: '#1a1a1a',
+        letterSpacing: 1,
+    },
+    headerTitleDark: {
+        color: '#e5e5e5',
     },
     scrollContent: {
         flexGrow: 1,
         justifyContent: 'center',
         paddingHorizontal: 32,
     },
-    header: {
+    titleContainer: {
         alignItems: 'center',
         marginBottom: 56,
     },
@@ -112,6 +109,7 @@ const styles = StyleSheet.create({
     subtitle: {
         fontSize: 15,
         color: '#757575',
+        textAlign: 'center',
         fontWeight: '300',
     },
     subtitleDark: {
@@ -128,18 +126,18 @@ const styles = StyleSheet.create({
         backgroundColor: '#1a1a1a',
         borderColor: '#2a2a2a',
     },
-    registerLink: {
+    loginLink: {
         marginTop: 24,
         alignItems: 'center',
     },
-    registerLinkText: {
+    loginLinkText: {
         fontSize: 14,
         color: '#666',
     },
-    registerLinkTextDark: {
+    loginLinkTextDark: {
         color: '#999',
     },
-    registerLinkBold: {
+    loginLinkBold: {
         fontWeight: '600',
         color: '#007AFF',
     },
