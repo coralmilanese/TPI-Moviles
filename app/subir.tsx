@@ -131,7 +131,7 @@ export default function UploadScreen() {
                 [
                     {
                         text: 'Ver Galería',
-                        onPress: () => router.push('/(tabs)/galeria'),
+                        onPress: () => router.push('/galeria'),
                     },
                 ]
             );

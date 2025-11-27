@@ -222,7 +222,7 @@ export default function GalleryScreen() {
                                 style={[styles.imageCard, isDark && styles.imageCardDark]}
                                 onPress={() => {
                                     const encodedData = encodeURIComponent(JSON.stringify(item));
-                                    router.push(`/(tabs)/imagenDetalle?data=${encodedData}`);
+                                    router.push(`/imagenDetalle?data=${encodedData}`);
                                 }}
                                 activeOpacity={0.7}
                             >

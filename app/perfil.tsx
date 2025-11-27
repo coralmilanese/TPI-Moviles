@@ -16,14 +16,14 @@ export default function ProfileScreen() {
 
     React.useEffect(() => {
         if (!isAuthenticated) {
-            router.replace('/(tabs)');
+            router.replace('/');
         }
     }, [isAuthenticated, router]);
 
     const handleLogout = async () => {
         try {
             await logout();
-            router.replace('/(tabs)');
+            router.replace('/');
         } catch (error) {
             console.error('Error al cerrar sesión:', error);
         }

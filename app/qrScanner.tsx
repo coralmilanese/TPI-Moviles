@@ -18,7 +18,7 @@ export default function QRScannerScreen() {
     const isDark = effectiveTheme === 'dark';
     const [permission, requestPermission] = useCameraPermissions();
     const [scanned, setScanned] = useState(false);
-    const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
         // Timeout de 1 minuto y se cierra
@@ -51,7 +51,7 @@ export default function QRScannerScreen() {
 
             // Codificar el JSON para pasarlo como parámetro
             const encodedData = encodeURIComponent(JSON.stringify(obraData));
-            router.push(`/(tabs)/imagenDetalle?data=${encodedData}`);
+            router.push(`/imagenDetalle?data=${encodedData}`);
         } catch (error) {
             console.error('Error parsing QR:', error);
             Alert.alert('Error', 'Código QR inválido', [

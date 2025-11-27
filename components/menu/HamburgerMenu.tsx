@@ -88,7 +88,7 @@ export const HamburgerMenu: React.FC = () => {
             <View style={styles.menuItems}>
               <TouchableOpacity
                 style={styles.menuItem}
-                onPress={() => handleNavigation('/(tabs)')}
+                onPress={() => handleNavigation('/')}
               >
                 <View style={styles.menuItemContent}>
                   <View style={[styles.iconCircle, { backgroundColor: '#4A90E2' }]}>
@@ -100,7 +100,7 @@ export const HamburgerMenu: React.FC = () => {
 
               <TouchableOpacity
                 style={styles.menuItem}
-                onPress={() => handleNavigation('/(tabs)/galeria')}
+                onPress={() => handleNavigation('/galeria')}
               >
                 <View style={styles.menuItemContent}>
                   <View style={[styles.iconCircle, { backgroundColor: '#9B59B6' }]}>
@@ -112,7 +112,7 @@ export const HamburgerMenu: React.FC = () => {
 
               <TouchableOpacity
                 style={styles.menuItem}
-                onPress={() => handleNavigation('/(tabs)/qrScanner')}
+                onPress={() => handleNavigation('/qrScanner')}
               >
                 <View style={styles.menuItemContent}>
                   <View style={[styles.iconCircle, { backgroundColor: '#3498DB' }]}>
@@ -126,7 +126,7 @@ export const HamburgerMenu: React.FC = () => {
                 <>
                   <TouchableOpacity
                     style={styles.menuItem}
-                    onPress={() => handleNavigation('/(tabs)/subir')}
+                    onPress={() => handleNavigation('/subir')}
                   >
                     <View style={styles.menuItemContent}>
                       <View style={[styles.iconCircle, { backgroundColor: '#27AE60' }]}>
@@ -137,7 +137,7 @@ export const HamburgerMenu: React.FC = () => {
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.menuItem}
-                    onPress={() => handleNavigation('/(tabs)/perfil')}
+                    onPress={() => handleNavigation('/perfil')}
                   >
                     <View style={styles.menuItemContent}>
                       <View style={[styles.iconCircle, { backgroundColor: '#E67E22' }]}>
@@ -150,7 +150,7 @@ export const HamburgerMenu: React.FC = () => {
               ) : (
                 <TouchableOpacity
                   style={styles.menuItem}
-                  onPress={() => handleNavigation('/(tabs)/login')}
+                  onPress={() => handleNavigation('/login')}
                 >
                   <View style={styles.menuItemContent}>
                     <View style={[styles.iconCircle, { backgroundColor: '#E74C3C' }]}>

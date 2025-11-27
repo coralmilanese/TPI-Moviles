@@ -1,4 +1,3 @@
-import { LoginForm } from '@/components/forms/LoginForm';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useRouter } from 'expo-router';
 import React from 'react';
@@ -12,6 +11,7 @@ import {
     View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { LoginForm } from '../components/forms/LoginForm';
 
 export default function LoginScreen() {
     const router = useRouter();
@@ -43,7 +43,7 @@ export default function LoginScreen() {
                     <View style={[styles.formContainer, isDark && styles.formContainerDark]}>
                         <LoginForm />
                         <TouchableOpacity
-                            onPress={() => router.push('/(tabs)/registro')}
+                            onPress={() => router.push('/registro')}
                             style={styles.registerLink}
                         >
                             <Text style={[styles.registerLinkText, isDark && styles.registerLinkTextDark]}>

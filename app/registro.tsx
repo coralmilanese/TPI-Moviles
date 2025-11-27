@@ -41,7 +41,7 @@ export default function RegistroScreen() {
                         <RegisterForm />
 
                         <TouchableOpacity
-                            onPress={() => router.replace('/(tabs)/login')}
+                            onPress={() => router.replace('/login')}
                             style={styles.loginLink}
                         >
                             <Text style={[styles.loginLinkText, isDark && styles.loginLinkTextDark]}>
