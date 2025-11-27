@@ -4,7 +4,7 @@ import * as Location from "expo-location";
 import * as Notifications from "expo-notifications";
 import { useEffect, useRef } from "react";
 
-const STORAGE_KEY = "haEntradoMuseo1";
+const STORAGE_KEY = "haEntradoMuseo6";
 const INTERVALO_VERIFICACION = 10000; // Verificar cada 10 segundos
 
 Notifications.setNotificationHandler({
@@ -32,13 +32,11 @@ function calcularDistancia(
   const diferenciaLat = lat2 - lat1;
   const diferenciaLon = lon2 - lon1;
 
-  // Distancia aproximada en kilómetros
   const distanciaKm = Math.sqrt(
     Math.pow(diferenciaLat * 111, 2) +
       Math.pow(diferenciaLon * 111 * Math.cos((lat1 * Math.PI) / 180), 2)
   );
 
-  // Convertir a metros
   return distanciaKm * 1000;
 }
 
@@ -48,7 +46,6 @@ export function useLocationService(): void {
 
   const iniciarSeguimientoUbicacion = async () => {
     try {
-      // Iniciar seguimiento de ubicación
       intervaloRef.current = setInterval(async () => {
         try {
           const ubicacion = await Location.getCurrentPositionAsync({
@@ -69,12 +66,10 @@ export function useLocationService(): void {
 
           estaDentroRef.current = ahoraEstaDentro;
 
-          // Si acaba de entrar al museo
           if (!estabaDentro && ahoraEstaDentro) {
             await manejarEntradaMuseo();
           }
 
-          // Si acaba de salir del museo, resetear la notificación
           if (estabaDentro && !ahoraEstaDentro) {
             await resetearEntradaMuseo();
             console.log("Usuario salió del museo, notificación reseteada");
@@ -90,7 +85,6 @@ export function useLocationService(): void {
 
   const manejarEntradaMuseo = async () => {
     try {
-      // Verificar si ya se mostró la notificación en esta sesión
       const haEntrado = await AsyncStorage.getItem(STORAGE_KEY);
 
       if (haEntrado === "true") {
@@ -157,7 +151,6 @@ export function useLocationService(): void {
   }, []);
 }
 
-// Función para resetear el estado (útil para testing)
 export const resetearEntradaMuseo = async () => {
   await AsyncStorage.removeItem(STORAGE_KEY);
 };
