@@ -8,9 +8,6 @@ export interface Favorito {
   url?: string;
 }
 
-/**
- * Obtener todos los favoritos del usuario autenticado
- */
 export const fetchFavoritos = async (token: string): Promise<Favorito[]> => {
   try {
     const response = await fetch(`${config.API_BASE_URL}/api/favoritos`, {
@@ -34,9 +31,6 @@ export const fetchFavoritos = async (token: string): Promise<Favorito[]> => {
   }
 };
 
-/**
- * Marcar una imagen como favorita
- */
 export const addFavorito = async (
   token: string,
   imagen_id: number
@@ -60,9 +54,6 @@ export const addFavorito = async (
   }
 };
 
-/**
- * Quitar una imagen de favoritos por imagen_id
- */
 export const removeFavorito = async (
   token: string,
   imagen_id: number
@@ -88,9 +79,6 @@ export const removeFavorito = async (
   }
 };
 
-/**
- * Toggle favorito: agregar si no existe, quitar si existe
- */
 export const toggleFavorito = async (
   token: string,
   imagen_id: number,
