@@ -22,6 +22,7 @@ export const fetchFavoritos = async (token: string): Promise<Favorito[]> => {
     });
 
     if (!response.ok) {
+      console.error(response);
       throw new Error("Error al obtener favoritos");
     }
 

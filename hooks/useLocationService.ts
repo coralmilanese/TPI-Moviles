@@ -4,10 +4,9 @@ import * as Location from "expo-location";
 import * as Notifications from "expo-notifications";
 import { useEffect, useRef } from "react";
 
-const STORAGE_KEY = "haEntradoMuseo";
+const STORAGE_KEY = "haEntradoMuseo1";
 const INTERVALO_VERIFICACION = 10000; // Verificar cada 10 segundos
 
-// Configurar el manejador de notificaciones
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -44,7 +43,7 @@ function calcularDistancia(
 }
 
 export function useLocationService(): void {
-  const intervaloRef = useRef<NodeJS.Timeout | null>(null);
+  const intervaloRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const estaDentroRef = useRef(false);
 
   const iniciarSeguimientoUbicacion = async () => {

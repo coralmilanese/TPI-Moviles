@@ -20,7 +20,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const [token, setToken] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    // Cargar sesión guardada al iniciar
     useEffect(() => {
         loadStoredAuth();
     }, []);
@@ -73,18 +72,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 throw new Error(data.mensaje || data.message || 'Error al iniciar sesión');
             }
 
-            // La API devuelve: { mensaje, token, user: { id, nombre, email, rol } }
             const { token: authToken, user: userData } = data;
 
             if (!authToken || !userData) {
                 throw new Error('Respuesta inválida del servidor: falta token o user');
             }
 
-            // Guardar en estado
             setToken(authToken);
             setUser(userData);
 
-            // Persistir en AsyncStorage
             await AsyncStorage.setItem('authToken', authToken);
             await AsyncStorage.setItem('user', JSON.stringify(userData));
         } catch (error) {
@@ -108,7 +104,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                     nombre,
                     email,
                     password,
-                    rol: 'visitante' // Por defecto los usuarios son visitantes
+                    rol: 'visitante'
                 }),
             });
 
@@ -126,14 +122,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             }
 
             if (!response.ok) {
-                // Manejar errores específicos
                 if (response.status === 409) {
                     throw new Error('El email ya está registrado');
                 }
                 throw new Error(data.error || data.mensaje || 'Error al crear la cuenta');
             }
 
-            // Registro exitoso - no necesitamos hacer login automático
             console.log('Registro exitoso:', data.mensaje);
         } catch (error) {
             console.error('Register error:', error);

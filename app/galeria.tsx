@@ -40,7 +40,6 @@ export default function GalleryScreen() {
     const loadData = async () => {
         setIsLoading(true);
         try {
-            // Cargar imágenes
             const fetchedImages = await fetchImages();
 
             if (!fetchedImages) {
@@ -48,14 +47,12 @@ export default function GalleryScreen() {
                 return;
             }
 
-            // Cargar favoritos si el usuario está autenticado
             if (isAuthenticated && token) {
                 try {
                     const favoritos = await fetchFavoritos(token);
                     const favIds = new Set(favoritos.map(f => f.imagen_id));
                     setFavoritosIds(favIds);
 
-                    // Marcar imágenes favoritas
                     const imagesWithFavorites = fetchedImages.map(img => ({
                         ...img,
                         isFavorite: favIds.has(img.id),

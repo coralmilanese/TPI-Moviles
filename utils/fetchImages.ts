@@ -7,7 +7,6 @@ export const fetchImages = async () => {
     const data = await response.json();
 
     if (data && Array.isArray(data)) {
-      // Reemplazar localhost con la IP en las URLs
       const imagesWithFixedUrls = data.map((img: Imagen) => ({
         ...img,
         url: img.url.replace("http://localhost:4000", config.API_BASE_URL),

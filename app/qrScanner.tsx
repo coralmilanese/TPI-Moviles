@@ -18,10 +18,9 @@ export default function QRScannerScreen() {
     const isDark = effectiveTheme === 'dark';
     const [permission, requestPermission] = useCameraPermissions();
     const [scanned, setScanned] = useState(false);
-    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const timeoutRef = useRef<number | null>(null);
 
     useEffect(() => {
-        // Timeout de 1 minuto y se cierra
         timeoutRef.current = setTimeout(() => {
             router.back()
         }, 60000);
@@ -42,14 +41,12 @@ export default function QRScannerScreen() {
         }
 
         try {
-            // El QR contiene el JSON completo de la obra
             const obraData = JSON.parse(data);
 
             if (!obraData.id || !obraData.titulo) {
                 throw new Error('JSON incompleto');
             }
 
-            // Codificar el JSON para pasarlo como parámetro
             const encodedData = encodeURIComponent(JSON.stringify(obraData));
             router.push(`/imagenDetalle?data=${encodedData}`);
         } catch (error) {

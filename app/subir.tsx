@@ -136,7 +136,6 @@ export default function UploadScreen() {
                 ]
             );
 
-            // Limpiar formulario
             setTitulo('');
             setDescripcion('');
             setAutor('');

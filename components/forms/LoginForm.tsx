@@ -83,6 +83,7 @@ export const LoginForm: React.FC = () => {
               ]
             );
           } catch (error) {
+            AsyncStorage.removeItem(config.BIOMETRIC_CREDENTIALS_KEY)
             Alert.alert(
               'Error',
               error instanceof Error ? error.message : 'Error al iniciar sesión'
@@ -124,7 +125,6 @@ export const LoginForm: React.FC = () => {
     try {
       await login(email, password);
 
-      // Preguntar si quiere guardar credenciales para biometría
       if (biometricAvailable && !hasSavedCredentials) {
         Alert.alert(
           '¿Habilitar inicio con huella?',

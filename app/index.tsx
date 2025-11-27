@@ -21,7 +21,7 @@ export default function HomeScreen() {
 
   const [images, setImages] = useState<Imagen[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     fetchImages().then(fetchedImages => {
@@ -35,7 +35,7 @@ export default function HomeScreen() {
     if (images.length > 0) {
       intervalRef.current = setInterval(() => {
         setCurrentIndex((prev) => (prev + 1) % images.length);
-      }, 4000); // Cambia cada 4 segundos
+      }, 4000);
 
       return () => {
         if (intervalRef.current) {
