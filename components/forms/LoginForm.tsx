@@ -78,7 +78,7 @@ export const LoginForm: React.FC = () => {
               [
                 {
                   text: 'OK',
-                  onPress: () => router.replace('/'),
+                  onPress: () => router.replace('/(tabs)'),
                 },
               ]
             );
@@ -151,7 +151,7 @@ export const LoginForm: React.FC = () => {
         [
           {
             text: 'OK',
-            onPress: () => router.replace('/'),
+            onPress: () => router.replace('/(tabs)'),
           },
         ]
       );

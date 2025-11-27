@@ -16,15 +16,7 @@ function RootLayoutNav() {
   return (
     <NavigationThemeProvider value={effectiveTheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="login" options={{ headerShown: false }} />
-        <Stack.Screen name="registro" options={{ headerShown: false }} />
-        <Stack.Screen name="galeria" options={{ headerShown: false }} />
-        <Stack.Screen name="subir" options={{ headerShown: false }} />
-        <Stack.Screen name="perfil" options={{ headerShown: false }} />
-        <Stack.Screen name="qrScanner" options={{ headerShown: false }} />
-        <Stack.Screen name="obraDetalle" options={{ headerShown: false }} />
-        <Stack.Screen name="imagenDetalle" options={{ headerShown: false }} />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       </Stack>
       <StatusBar style="auto" />
     </NavigationThemeProvider>

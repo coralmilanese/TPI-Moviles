@@ -21,7 +21,7 @@ export default function HomeScreen() {
 
   const [images, setImages] = useState<Imagen[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<number | null>(null);
 
   useEffect(() => {
     fetchImages().then(fetchedImages => {
@@ -35,7 +35,7 @@ export default function HomeScreen() {
     if (images.length > 0) {
       intervalRef.current = setInterval(() => {
         setCurrentIndex((prev) => (prev + 1) % images.length);
-      }, 4000); // Cambia cada 4 segundos
+      }, 4000);
 
       return () => {
         if (intervalRef.current) {
@@ -104,7 +104,7 @@ export default function HomeScreen() {
         <View style={styles.featuresContainer}>
           <TouchableOpacity
             style={[styles.featureCard, isDark && styles.featureCardDark]}
-            onPress={() => router.push('/galeria')}
+            onPress={() => router.push('/(tabs)/galeria')}
           >
             <View style={[styles.iconContainer, isDark && styles.iconContainerDark]}>
               <Ionicons name="images-outline" size={32} color={isDark ? '#e5e5e5' : '#1a1a1a'} />
@@ -117,7 +117,7 @@ export default function HomeScreen() {
 
           <TouchableOpacity
             style={[styles.featureCard, isDark && styles.featureCardDark]}
-            onPress={() => router.push('/qrScanner')}
+            onPress={() => router.push('/(tabs)/qrScanner')}
           >
             <View style={[styles.iconContainer, isDark && styles.iconContainerDark]}>
               <MaterialIcons name="qr-code-scanner" size={32} color={isDark ? '#e5e5e5' : '#1a1a1a'} />
@@ -132,7 +132,7 @@ export default function HomeScreen() {
             <>
               <TouchableOpacity
                 style={[styles.featureCard, isDark && styles.featureCardDark]}
-                onPress={() => router.push('/subir')}
+                onPress={() => router.push('/(tabs)/subir')}
               >
                 <View style={[styles.iconContainer, isDark && styles.iconContainerDark]}>
                   <Ionicons name="cloud-upload-outline" size={32} color={isDark ? '#e5e5e5' : '#1a1a1a'} />
@@ -155,7 +155,7 @@ export default function HomeScreen() {
           ) : (
             <TouchableOpacity
               style={[styles.featureCard, styles.loginCard, isDark && styles.featureCardDark, isDark && styles.loginCardDark]}
-              onPress={() => router.push('/login')}
+              onPress={() => router.push('/(tabs)/login')}
             >
               <View style={[styles.iconContainer, isDark && styles.iconContainerDark]}>
                 <MaterialIcons name="login" size={32} color={isDark ? '#e5e5e5' : '#1a1a1a'} />

@@ -75,7 +75,7 @@ export const RegisterForm: React.FC = () => {
                 [
                     {
                         text: 'OK',
-                        onPress: () => router.replace('/login'),
+                        onPress: () => router.replace('/(tabs)/login'),
                     },
                 ]
             );
