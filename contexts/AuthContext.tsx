@@ -70,16 +70,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             }
 
             if (!response.ok) {
-                AsyncStorage.removeItem(config.BIOMETRIC_CREDENTIALS_KEY)
                 throw new Error(data.mensaje || data.message || 'Error al iniciar sesión');
             }
 
+            // La API devuelve: { mensaje, token, user: { id, nombre, email, rol } }
             const { token: authToken, user: userData } = data;
 
             if (!authToken || !userData) {
                 throw new Error('Respuesta inválida del servidor: falta token o user');
             }
 
+            // Guardar en estado
             setToken(authToken);
             setUser(userData);
 
@@ -96,6 +97,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         try {
             const API_URL = `${config.API_BASE_URL}/api/auth/register`;
 
+            console.log('Intentando registro en:', API_URL);
+
             const response = await fetch(API_URL, {
                 method: 'POST',
                 headers: {
@@ -105,11 +108,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                     nombre,
                     email,
                     password,
-                    rol: 'visitante'
+                    rol: 'visitante' // Por defecto los usuarios son visitantes
                 }),
             });
 
+            console.log('Response status:', response.status);
+
             const responseText = await response.text();
+            console.log('Response text:', responseText);
+
             let data;
             try {
                 data = JSON.parse(responseText);
@@ -119,11 +126,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             }
 
             if (!response.ok) {
+                // Manejar errores específicos
                 if (response.status === 409) {
                     throw new Error('El email ya está registrado');
                 }
                 throw new Error(data.error || data.mensaje || 'Error al crear la cuenta');
             }
+
+            // Registro exitoso - no necesitamos hacer login automático
+            console.log('Registro exitoso:', data.mensaje);
         } catch (error) {
             console.error('Register error:', error);
             throw error;
