@@ -8,7 +8,7 @@ import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { Button } from '../common/Button';
-import { InputField } from './InputField';
+import { InputField } from '../common/InputField';
 
 export const LoginForm: React.FC = () => {
   const [email, setEmail] = useState('');

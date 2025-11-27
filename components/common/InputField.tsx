@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Input } from '../common/Input';
-import { Label } from '../common/Label';
+import { Input } from './Input';
+import { Label } from './Label';
 
 interface InputFieldProps {
   label: string;

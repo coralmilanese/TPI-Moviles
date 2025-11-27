@@ -1,5 +1,5 @@
 import { Button } from '@/components/common/Button';
-import { InputField } from '@/components/forms/InputField';
+import { InputField } from '@/components/common/InputField';
 import { HamburgerMenu } from '@/components/menu/HamburgerMenu';
 import { ThemeToggle } from '@/components/menu/ThemeToggle';
 import { config } from '@/config/env';

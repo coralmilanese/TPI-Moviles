@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, StyleSheet, Text, View } from 'react-native';
 import { Button } from '../common/Button';
-import { InputField } from './InputField';
+import { InputField } from '../common/InputField';
 
 export const RegisterForm: React.FC = () => {
     const [nombre, setNombre] = useState('');
